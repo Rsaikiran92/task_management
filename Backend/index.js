@@ -1,26 +1,31 @@
 const express = require("express");
-const mongoose = require("mongoose");
-const { userRouter } = require("./routes/userRouter");
-const { taskRouter } = require("./routes/taskRouter");
+const connection = require("./configs/db");
+require("dotenv").config();
+const cors = require("cors");
+
 
 const app = express();
-
+const port = process.env.PORT || 8080;
 app.use(express.json());
-app.use("/", userRouter);
-app.use("/", taskRouter);
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 
 app.get("/", (req, res) => {
-  res.send("welcome to server");
+  res.send("Welcome Home Page");
 });
 
-app.listen(8080, async () => {
+app.use("/user", require("./routes/userRoutes"));
+app.use("/task", require("./routes/taskRoutes"));
+
+app.listen(port, async () => {
   try {
-    await mongoose.connect(
-      "mongodb+srv://saikiran92rk:isUMj3HVHNYOgA23@cluster0.f6wkr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-    );
-    console.log("connected to db");
-  } catch (error) {
-    console.error("not connected to db");
+    await connection;
+    console.log("Connected to the DB");
+  } catch (err) {
+    console.log("Trouble connecting to the DB");
+    console.log(err);
   }
-  console.log("server started in 8080 port");
 });
